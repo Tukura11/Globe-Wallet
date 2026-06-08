@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/app/app-shell"
 import { BalanceCard } from "@/components/app/balance-card"
 import { QuickActions } from "@/components/app/quick-actions"
+import { CryptoHoldings } from "@/components/app/crypto-holdings"
 import { TransactionList } from "@/components/app/transaction-list"
 import { savingsGoals, formatMoney } from "@/lib/finance-data"
 import Link from "next/link"
@@ -13,6 +14,7 @@ export default function HomePage() {
     <AppShell>
       <BalanceCard />
       <QuickActions />
+      <CryptoHoldings />
 
       <section className="px-4 pt-6">
         <div className="mb-2 flex items-center justify-between">

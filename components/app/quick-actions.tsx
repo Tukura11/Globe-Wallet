@@ -1,13 +1,13 @@
 "use client"
 
-import { Send, Download, Smartphone, ReceiptText } from "lucide-react"
+import { Send, QrCode, ArrowLeftRight, Banknote } from "lucide-react"
 import Link from "next/link"
 
 const actions = [
   { label: "Send", icon: Send, href: "/send" },
-  { label: "Request", icon: Download, href: "/send" },
-  { label: "Airtime", icon: Smartphone, href: "/send" },
-  { label: "Bills", icon: ReceiptText, href: "/send" },
+  { label: "Receive", icon: QrCode, href: "/receive" },
+  { label: "Convert", icon: ArrowLeftRight, href: "/convert" },
+  { label: "Cash Out", icon: Banknote, href: "/off-ramp" },
 ]
 
 export function QuickActions() {

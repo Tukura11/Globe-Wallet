@@ -209,3 +209,102 @@ export const quickActions = [
   { id: "airtime", label: "Airtime", icon: "airtime" },
   { id: "bills", label: "Bills", icon: "bills" },
 ] as const
+
+/* ---------------- Crypto / Stellar token layer ---------------- */
+
+export type AssetCode = "XLM" | "USDC" | "USDT"
+
+export interface CryptoAsset {
+  code: AssetCode
+  name: string
+  /** Stellar asset issuer (mock testnet-style address) */
+  issuer: string
+  balance: number
+  /** Spot price in USD */
+  priceUsd: number
+  changePct: number
+  color: string
+}
+
+export const cryptoAssets: CryptoAsset[] = [
+  {
+    code: "XLM",
+    name: "Stellar Lumens",
+    issuer: "native",
+    balance: 4250.5,
+    priceUsd: 0.1185,
+    changePct: 4.7,
+    color: "bg-foreground",
+  },
+  {
+    code: "USDC",
+    name: "USD Coin",
+    issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    balance: 1820.0,
+    priceUsd: 1.0,
+    changePct: 0.0,
+    color: "bg-primary",
+  },
+  {
+    code: "USDT",
+    name: "Tether USD",
+    issuer: "GCQTGZQQ5G4PTM2GL7CDIFKUBIPEC52BROAQIAPW53XBRJVN6ZJVTG6V",
+    balance: 540.25,
+    priceUsd: 1.0,
+    changePct: 0.01,
+    color: "bg-accent",
+  },
+]
+
+/** Your receive address on the Stellar network (mock) */
+export const stellarAccount = {
+  publicKey: "GDXSPAYWALLET7QK3MUKXHV2RZ4D6FJ5N2YHV3K2L9P8QW1ZC4T6BNRX",
+  memo: "STLP-2048",
+  network: "Stellar Public Network",
+}
+
+/** Conversion rates relative to 1 unit of the FROM asset */
+export const conversionRates: Record<AssetCode, Record<AssetCode, number>> = {
+  XLM: { XLM: 1, USDC: 0.1185, USDT: 0.1184 },
+  USDC: { XLM: 8.4388, USDC: 1, USDT: 0.9994 },
+  USDT: { XLM: 8.4459, USDC: 1.0006, USDT: 1 },
+}
+
+export interface OffRampMethod {
+  id: string
+  type: "bank" | "mobile"
+  label: string
+  detail: string
+  initials: string
+}
+
+export const offRampMethods: OffRampMethod[] = [
+  { id: "m1", type: "bank", label: "GTBank • Savings", detail: "•••• 8842", initials: "GT" },
+  { id: "m2", type: "bank", label: "Access Bank • Current", detail: "•••• 1129", initials: "AC" },
+  { id: "m3", type: "mobile", label: "Opay Wallet", detail: "+234 803 •••• 21", initials: "OP" },
+]
+
+/** Local fiat payout rate per 1 USD of stablecoin, by currency */
+export const offRampRates: Record<CurrencyCode, number> = {
+  NGN: 1580.5,
+  USD: 1,
+  GBP: 0.79,
+}
+
+export const cryptoSymbols: Record<AssetCode, string> = {
+  XLM: "XLM",
+  USDC: "USDC",
+  USDT: "USDT",
+}
+
+export function formatCrypto(amount: number, code: AssetCode, hidden = false): string {
+  if (hidden) return `•••• ${code}`
+  return `${amount.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: code === "XLM" ? 4 : 2,
+  })} ${code}`
+}
+
+export function shortenKey(key: string, lead = 6, tail = 6): string {
+  return `${key.slice(0, lead)}…${key.slice(-tail)}`
+}

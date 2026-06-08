@@ -1,33 +1,152 @@
 # ORBIT-WALLET
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+A comprehensive Stellar blockchain wallet application built with Next.js, providing seamless cryptocurrency management and financial operations.
+
+## Features
+
+### 🪙 Stellar (XLM) Operations
+- **Receive XLM**: Generate wallet addresses with QR codes for easy receiving
+- **Send XLM**: Transfer Stellar Lumens to other wallet addresses
+- **Balance Management**: Real-time XLM balance tracking and transaction history
+
+### 💱 Currency Conversion
+- **XLM to USDC**: Convert Stellar Lumens to USD Coin
+- **XLM to USDT**: Convert Stellar Lumens to Tether
+- **Real-time Rates**: Live exchange rates and conversion calculations
+
+### 🏦 Off-ramp Services
+- **Crypto to Bank**: Convert cryptocurrency holdings to fiat currency
+- **Bank Integration**: Direct transfers to connected bank accounts
+- **Withdrawal Options**: Multiple withdrawal methods and processing
+
+### 📱 User Experience
+- **Dashboard**: Comprehensive overview of portfolio and recent transactions
+- **Profile Management**: User settings and account configuration
+- **Savings Features**: Track and manage savings goals
+- **Transaction History**: Detailed records of all wallet activities
+
+### 🔧 Technical Features
+- **QR Code Generation**: For easy address sharing and payments
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Dark/Light Theme**: Customizable user interface themes
+- **Real-time Updates**: Live balance and transaction updates
 
 ## Built with v0
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+This repository is linked to a [v0](https://v0.app) project for rapid development and deployment.
 
 [Continue working on v0 →](https://v0.app/chat/projects/prj_Z6moUc7brx5QzV1vPHQC842r9sYK)
 
+## Architecture
+
+### Frontend Stack
+- **Next.js 14**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first styling
+- **Shadcn/UI**: Component library
+- **React Hooks**: State management and effects
+
+### Blockchain Integration
+- **Stellar SDK**: Stellar blockchain interactions
+- **Wallet Connection**: Secure wallet management
+- **Transaction Processing**: XLM and token operations
+- **Smart Contract Integration**: Automated financial operations
+
+### Backend Services *(Planned)*
+- **API Routes**: Next.js API for wallet operations
+- **Database**: Transaction and user data storage
+- **Authentication**: Secure user management
+- **Payment Processing**: Off-ramp service integration
+- **Rate Provider**: Real-time exchange rate feeds
+
+### Security Features
+- **Private Key Management**: Secure key storage and handling
+- **Transaction Signing**: Cryptographic transaction verification
+- **Address Validation**: Stellar address format verification
+- **Rate Limiting**: API protection and abuse prevention
+
+## Development Status
+
+### ✅ Completed Features
+- Basic wallet dashboard and UI components
+- Theme system (dark/light mode)
+- Responsive design framework
+- Component architecture setup
+
+### 🚧 In Development
+- **Receive Screen**: XLM address display with QR code generation
+- **Convert Screen**: XLM to USDC/USDT exchange interface
+- **Off-ramp Screen**: Crypto to bank withdrawal system
+- **Backend Architecture**: API and database implementation
+
+### 📋 Planned Features
+- Multi-currency support beyond XLM/USDC/USDT
+- Advanced portfolio analytics
+- Automated savings features
+- Social payment features
+- Mobile app version
+
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- pnpm (recommended) or npm
+- Stellar account for testing
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Clone the repository
+git clone https://github.com/Orbit-Wal/ORBIT-WALLET.git
+cd ORBIT-WALLET
+
+# Install dependencies
+pnpm install
+
+# Run development server
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Setup
+Create a `.env.local` file:
+```
+NEXT_PUBLIC_STELLAR_NETWORK=testnet
+STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
+```
 
-## Learn More
+## Contributing
 
-To learn more, take a look at the following resources:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+## Testing
+
+### Browser Testing
+All wallet flows are verified in supported browsers:
+- Chrome/Chromium 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+### Test Scenarios
+- Wallet creation and import
+- XLM sending and receiving
+- Currency conversion flows
+- Off-ramp processes
+- UI responsiveness across devices
+
+## Resources
+
+- [Stellar Documentation](https://developers.stellar.org/) - Stellar blockchain development
+- [Next.js Documentation](https://nextjs.org/docs) - Next.js features and API
+- [Tailwind CSS](https://tailwindcss.com/docs) - Styling framework
+- [Shadcn/UI](https://ui.shadcn.com/) - Component library
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

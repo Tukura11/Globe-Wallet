@@ -9,8 +9,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Donezo - Project Management Dashboard",
-  description: "Plan, prioritize, and accomplish your tasks with ease",
+  title: "StellarPay - Your Money, Borderless",
+  description: "Send, save, and spend across currencies. A mobile-first financial super app settled on the Stellar Network.",
   generator: "v0.app",
   icons: {
     icon: [

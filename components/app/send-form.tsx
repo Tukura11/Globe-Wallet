@@ -126,7 +126,7 @@ export function SendForm() {
       </CardHeader>
 
       {step === "form" ? (
-        <form onSubmit={handleReview} aria-label="Send assets form">
+        <form onSubmit={handleReview} aria-label="Send assets form" noValidate>
           <CardContent className="space-y-4">
             {/* Contact picker */}
             <div className="space-y-2">

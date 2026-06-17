@@ -45,6 +45,23 @@ const mockFiat = {
 }
 
 // Seed contacts for the contact-picker (used by useContacts → contactService)
+jest.mock('../../hooks/useBalances', () => ({
+  useBalances: () => ({
+    wallets: [],
+    assets: [
+      { code: 'XLM', name: 'Stellar Lumens', balance: 5000, priceUsd: 0.12, change24h: 0, changePct: 0, color: '' },
+      { code: 'USDC', name: 'USD Coin', balance: 2000, priceUsd: 1, change24h: 0, changePct: 0, color: '' },
+    ],
+    totalFiatValue: 0,
+    totalCryptoValue: 0,
+    loading: false,
+    hasError: false,
+    error: null,
+    refreshBalances: jest.fn(),
+    getTotalValue: () => 0,
+  }),
+}))
+
 jest.mock('../../lib/services/contact.service', () => {
   const contacts: Contact[] = [
     { id: 'c1', name: 'Adaeze Okoro', handle: '@adaeze', initials: 'AO', address: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF' },
@@ -220,7 +237,7 @@ describe('SendForm — confirmation step', () => {
   it('advances to confirmation step on valid input', async () => {
     renderSendForm()
     await fillAndReview()
-    await waitFor(() => expect(screen.getByText(/Confirm Send/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByTestId('confirm-send-button')).toBeInTheDocument())
   })
 
   it('shows SendSummary with correct amount and fee', async () => {

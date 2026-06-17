@@ -12,6 +12,20 @@ import { Contact } from '../../lib/types'
 
 const VALID_ADDRESS = 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF'
 
+jest.mock('../../hooks/useBalances', () => ({
+  useBalances: () => ({
+    wallets: [],
+    assets: [{ code: 'XLM', name: 'Stellar Lumens', balance: 5000, priceUsd: 0.12, change24h: 0, changePct: 0, color: '' }],
+    totalFiatValue: 0,
+    totalCryptoValue: 0,
+    loading: false,
+    hasError: false,
+    error: null,
+    refreshBalances: jest.fn(),
+    getTotalValue: () => 0,
+  }),
+}))
+
 jest.mock('../../lib/services/contact.service', () => {
   const contacts: Contact[] = [
     { id: 'c1', name: 'Adaeze Okoro', handle: '@adaeze', initials: 'AO', address: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF' },

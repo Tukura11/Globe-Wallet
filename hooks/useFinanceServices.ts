@@ -1,5 +1,5 @@
-import { useContext, createContext, ReactNode } from 'react'
-import { IFinanceServiceContainer } from '../lib/types'
+import { useContext, createContext, ReactNode, createElement } from 'react'
+import { IFinanceServiceContainer, AssetCode, CurrencyCode } from '../lib/types'
 import { financeServices } from '../lib/services/container'
 
 const FinanceServicesContext = createContext<IFinanceServiceContainer>(financeServices)
@@ -10,45 +10,55 @@ interface FinanceServicesProviderProps {
 }
 
 export function FinanceServicesProvider({ children, services = financeServices }: FinanceServicesProviderProps) {
-  return (
-    <FinanceServicesContext.Provider value={services}>
-      {children}
-    </FinanceServicesContext.Provider>
-  )
+  return createElement(FinanceServicesContext.Provider, { value: services }, children)
 }
 
 export function useFinanceServices(): IFinanceServiceContainer {
   return useContext(FinanceServicesContext)
 }
 
-export function useAssets() {
-  const { asset } = useFinanceServices()
+export function usePricing() {
+  const { pricing } = useFinanceServices()
   return {
-    getAssets: () => asset.getAssets(),
-    getPrice: (code: any) => asset.getAssetPrice(code),
-    convert: (from: any, to: any, amount: number) => asset.convertAsset(from, to, amount),
-    format: (amount: number, code: any, hidden?: boolean) => asset.formatAsset(amount, code, hidden)
+    getAssets: () => pricing.getAssets(),
+    getPrice: (code: AssetCode) => pricing.getPrice(code),
+    formatAsset: (amount: number, code: AssetCode, hidden?: boolean) => pricing.formatAsset(amount, code, hidden)
   }
 }
 
-export function useWallets() {
-  const { fiat } = useFinanceServices()
+export function useWallet() {
+  const { wallet } = useFinanceServices()
   return {
-    getWallets: () => fiat.getWallets(),
-    formatMoney: (amount: number, currency: any, hidden?: boolean) => fiat.formatMoney(amount, currency, hidden),
-    convert: (from: any, to: any, amount: number) => fiat.convertCurrency(from, to, amount),
-    getRate: (from: any, to: any) => fiat.getExchangeRate(from, to)
+    getAccount: () => wallet.getAccountInfo(),
+    getBalance: () => wallet.getBalance(),
+    sendPayment: (dest: string, amt: number, asset: AssetCode, memo?: string) => wallet.sendPayment(dest, amt, asset, memo),
+    generateAddress: () => wallet.generateReceiveAddress(),
+    validateAddress: (address: string) => wallet.validateAddress(address),
+    shortenKey: (key: string, lead?: number, tail?: number) => wallet.shortenKey(key, lead, tail),
+    getHistory: () => wallet.getTransactionHistory()
   }
 }
 
-export function useStellar() {
-  const { stellar } = useFinanceServices()
+export function useExchange() {
+  const { exchange } = useFinanceServices()
   return {
-    getAccount: () => stellar.getAccountInfo(),
-    generateAddress: () => stellar.generateReceiveAddress(),
-    validateAddress: (address: string) => stellar.validateAddress(address),
-    shortenKey: (key: string, lead?: number, tail?: number) => stellar.shortenKey(key, lead, tail),
-    getOffRampMethods: () => stellar.getOffRampMethods(),
-    getOffRampRate: (currency: any) => stellar.getOffRampRate(currency)
+    estimate: (from: AssetCode, to: AssetCode, amt: number) => exchange.estimateSwap(from, to, amt),
+    execute: (from: AssetCode, to: AssetCode, amt: number) => exchange.executeSwap(from, to, amt)
+  }
+}
+
+export function useOffRamp() {
+  const { offRamp } = useFinanceServices()
+  return {
+    initiate: (amt: number, asset: AssetCode, mid: string, cur: CurrencyCode) => offRamp.initiateWithdrawal(amt, asset, mid, cur),
+    getRates: () => offRamp.getRates()
+  }
+}
+
+export function useSoroban() {
+  const { soroban } = useFinanceServices()
+  return {
+    createGoal: (amt: number, asset: AssetCode, deadline: number) => soroban.createSavingsGoal(amt, asset, deadline),
+    stake: (amt: number, asset: AssetCode) => soroban.stakeAssets(amt, asset)
   }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AppShell } from "@/components/app/app-shell"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -24,11 +24,27 @@ interface PaymentMethod {
   enabled: boolean
 }
 
+interface LastWithdrawal {
+  methodId: string
+  methodName: string
+  asset: string
+  amount: number
+  fiatAmount: number
+  status: 'completed' | 'pending' | 'failed'
+  hash?: string
+  date: string
+}
+
+const OFF_RAMP_SELECTED_METHOD_KEY = 'globe-offramp-selected-method'
+const OFF_RAMP_LAST_WITHDRAWAL_KEY = 'globe-offramp-last-withdrawal'
+
 export default function OffRampPage() {
   const [amount, setAmount] = useState("")
   const [currency, setCurrency] = useState("XLM")
   const [paymentMethod, setPaymentMethod] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [lastWithdrawal, setLastWithdrawal] = useState<LastWithdrawal | null>(null)
+  const [backendError, setBackendError] = useState<string | null>(null)
   
   // Mock balances
   const balances = {
@@ -101,40 +117,101 @@ export default function OffRampPage() {
     return getUSDValue() - getFeeAmount()
   }
   
+  useEffect(() => {
+    const storedMethod = window.localStorage.getItem(OFF_RAMP_SELECTED_METHOD_KEY)
+    const storedWithdrawal = window.localStorage.getItem(OFF_RAMP_LAST_WITHDRAWAL_KEY)
+
+    if (storedMethod) {
+      setPaymentMethod(storedMethod)
+    }
+
+    if (storedWithdrawal) {
+      try {
+        setLastWithdrawal(JSON.parse(storedWithdrawal))
+      } catch {
+        window.localStorage.removeItem(OFF_RAMP_LAST_WITHDRAWAL_KEY)
+      }
+    }
+  }, [])
+
+  const persistSelectedMethod = (methodId: string) => {
+    setPaymentMethod(methodId)
+    window.localStorage.setItem(OFF_RAMP_SELECTED_METHOD_KEY, methodId)
+  }
+
   const handleWithdraw = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       toast.error("Please enter a valid amount")
       return
     }
-    
+
     if (!paymentMethod) {
       toast.error("Please select a payment method")
       return
     }
-    
+
     const balance = balances[currency as keyof typeof balances]
     if (parseFloat(amount) > balance) {
       toast.error(`Insufficient ${currency} balance`)
       return
     }
-    
+
     const method = paymentMethods.find(m => m.id === paymentMethod)
     const usdAmount = getUSDValue()
-    
+
     if (method && (usdAmount < method.limits.min || usdAmount > method.limits.max)) {
       toast.error(`Amount must be between $${method.limits.min} - $${method.limits.max}`)
       return
     }
-    
+
+    setBackendError(null)
     setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    toast.success(`Withdrawal initiated. You'll receive $${getNetAmount().toFixed(2)} via ${method?.name}`)
-    setAmount("")
-    setPaymentMethod("")
-    setIsLoading(false)
+
+    try {
+      const response = await fetch('/api/off-ramp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset: currency,
+          amount: parseFloat(amount),
+          paymentMethodId: paymentMethod,
+          fiatAmount: usdAmount,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        const message = data?.error || 'Unable to process withdrawal'
+        setBackendError(message)
+        toast.error(message)
+        return
+      }
+
+      const result = data.data
+      const savedWithdrawal = {
+        methodId: result.methodId,
+        methodName: result.methodName,
+        asset: result.asset,
+        amount: result.amount,
+        fiatAmount: result.fiatAmount,
+        status: result.status ?? 'pending',
+        hash: result.hash,
+        date: new Date().toISOString(),
+      }
+
+      window.localStorage.setItem(OFF_RAMP_LAST_WITHDRAWAL_KEY, JSON.stringify(savedWithdrawal))
+      setLastWithdrawal(savedWithdrawal)
+
+      toast.success(`Withdrawal initiated. You'll receive $${getNetAmount().toFixed(2)} via ${method?.name}`)
+      setAmount("")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to process withdrawal'
+      setBackendError(message)
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -295,6 +372,35 @@ export default function OffRampPage() {
             >
               {isLoading ? "Processing..." : "Withdraw to Bank"}
             </Button>
+
+            {backendError && (
+              <Card className="p-4 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                <div className="flex items-start gap-2 text-sm text-red-700 dark:text-red-200">
+                  <AlertTriangle className="h-4 w-4 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Withdrawal failed</p>
+                    <p>{backendError}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {lastWithdrawal && (
+              <Card className="p-4 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Last withdrawal</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {lastWithdrawal.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {lastWithdrawal.amount} {lastWithdrawal.asset} (~${lastWithdrawal.fiatAmount.toFixed(2)}) to {lastWithdrawal.methodName}.
+                  </p>
+                  <p className="text-xs text-muted-foreground">{new Date(lastWithdrawal.date).toLocaleString()}</p>
+                </div>
+              </Card>
+            )}
             
             {/* Security Notice */}
             <Card className="p-4 border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">

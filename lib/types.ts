@@ -82,6 +82,27 @@ export interface SendResponse {
   error?: string
 }
 
+export interface OffRampRequest {
+  asset: AssetCode
+  amount: number
+  paymentMethodId: string
+  fiatAmount: number
+}
+
+export interface OffRampResponse {
+  success: boolean
+  data?: {
+    methodId: string
+    methodName: string
+    asset: AssetCode
+    amount: number
+    fiatAmount: number
+    status?: 'completed' | 'pending' | 'failed'
+    hash?: string
+  }
+  error?: string
+}
+
 export interface SavingsGoal {
   id: string
   title: string

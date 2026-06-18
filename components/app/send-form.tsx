@@ -9,6 +9,7 @@ import { WalletErrorAlert } from '@/components/ui/wallet-error-alert'
 import { usePricing } from '@/hooks/useFinanceServices'
 import { useBalances } from '@/hooks/useBalances'
 import { useWalletSend } from '@/hooks/useWalletSend'
+import { useContacts } from '@/hooks/useContacts'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { calculateFee } from '@/lib/helpers/format'
 import type { AssetCode } from '@/lib/types'
@@ -43,12 +44,7 @@ export function SendForm() {
   const hasAddressError = status === 'error' && error?.toLowerCase().includes('address')
   const hasAmountError = status === 'error' && error?.toLowerCase().includes('amount')
 
-  const currentAssetBalance = useMemo(
-    () => assets.find(a => a.code === selectedAsset)?.balance ?? 0,
-    [assets, selectedAsset]
-  )
-
-  const handleReview = (e: React.FormEvent) => {
+  const handleReview = async (e: React.FormEvent) => {
     e.preventDefault()
     await send(address, amount, selectedAsset, memo || undefined)
   }
@@ -75,7 +71,7 @@ export function SendForm() {
         </CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit} aria-label="Send payment form" noValidate>
+      <form onSubmit={handleReview} aria-label="Send payment form" noValidate>
         <CardContent className="space-y-4">
           {/* Recipient Address */}
           <div className="space-y-2">
@@ -147,6 +143,7 @@ export function SendForm() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
           {/* Balance + Fee info */}
           <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">

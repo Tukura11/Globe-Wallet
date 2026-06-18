@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 import { GET as assetsGET, POST as assetsPOST } from '../../app/api/assets/route'
 import { GET as walletsGET, POST as walletsPOST } from '../../app/api/wallets/route'
 import { GET as stellarGET, POST as stellarPOST } from '../../app/api/stellar/route'
+import { POST as offRampPOST } from '../../app/api/off-ramp/route'
 
 // Mock the finance services
 jest.mock('../../lib/services/container', () => ({
@@ -20,6 +21,26 @@ jest.mock('../../lib/services/container', () => ({
       convertCurrency: jest.fn().mockReturnValue(1580.5),
       getExchangeRate: jest.fn().mockReturnValue(1580.5)
     },
+    pricing: {
+      getAssets: jest.fn().mockReturnValue([
+        { code: 'XLM', name: 'Stellar Lumens', balance: 1000, priceUsd: 0.10 }
+      ]),
+      getPrice: jest.fn().mockImplementation((assetCode: string) => {
+        if (assetCode === 'INVALID') {
+          throw new Error('Invalid asset code')
+        }
+        return Promise.resolve(0.10)
+      })
+    },
+    wallet: {
+      getAccountInfo: jest.fn().mockReturnValue({
+        publicKey: 'GDXS...BNRX',
+        memo: 'STLP-2048',
+        network: 'Stellar Public Network'
+      }),
+      validateAddress: jest.fn().mockReturnValue(true),
+      generateReceiveAddress: jest.fn().mockReturnValue('GDXS...BNRX')
+    },
     stellar: {
       getAccountInfo: jest.fn().mockReturnValue({
         publicKey: 'GDXS...BNRX',
@@ -27,9 +48,27 @@ jest.mock('../../lib/services/container', () => ({
         network: 'Stellar Public Network'
       }),
       getOffRampMethods: jest.fn().mockReturnValue([]),
-      validateAddress: jest.fn().mockReturnValue(true),
-      generateReceiveAddress: jest.fn().mockReturnValue('GDXS...BNRX'),
       getOffRampRate: jest.fn().mockReturnValue(1580.5)
+    },
+    offRamp: {
+      getMethods: jest.fn().mockReturnValue([
+        {
+          id: 'm1',
+          name: 'Bank Transfer',
+          description: 'Wire transfer',
+          currency: 'USD',
+          minAmount: 10,
+          maxAmount: 10000,
+          processingTime: '1-3 business days',
+          fee: 2
+        }
+      ]),
+      getRates: jest.fn().mockResolvedValue({ USD: 1.0, NGN: 1500.0, EUR: 0.92 }),
+      initiateWithdrawal: jest.fn().mockResolvedValue({
+        success: true,
+        hash: 'offramp_hash',
+        status: 'pending'
+      })
     }
   }
 }))
@@ -142,6 +181,46 @@ describe('API Routes Integration', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
+  })
+
+  describe('/api/off-ramp', () => {
+    it('POST should process withdrawal and return success details', async () => {
+      const request = new NextRequest('http://localhost/api/off-ramp', {
+        method: 'POST',
+        body: JSON.stringify({
+          asset: 'XLM',
+          amount: 10,
+          paymentMethodId: 'm1',
+          fiatAmount: 15.0
+        })
+      })
+
+      const response = await offRampPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.success).toBe(true)
+      expect(data.data).toMatchObject({
+        methodId: 'm1',
+        asset: 'XLM',
+        amount: 10,
+        fiatAmount: 15.0,
+        status: 'pending'
+      })
+    })
+
+    it('POST should return validation errors for missing fields', async () => {
+      const request = new NextRequest('http://localhost/api/off-ramp', {
+        method: 'POST',
+        body: JSON.stringify({ asset: 'XLM', amount: 10 })
+      })
+
+      const response = await offRampPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(422)
       expect(data.success).toBe(false)
     })
   })

@@ -41,6 +41,7 @@ This repository is linked to a [v0](https://v0.app) project for rapid developmen
 - [Enterprise Upgrade (Issue #27)](docs/issue-27.md) - Details on the v1.2.0 upgrade, including API contracts and design rationale.
 - [Send Form: Contact Selection & Confirmation (Issue #23)](docs/issue-23.md) - Two-step send flow, contact picker, API contracts, and test instructions.
 - [Developer Onboarding (Issue #29)](docs/issue-29.md) - Repo structure, conventions, testing strategy, and contributor guide.
+- [E2E Testing: Core Wallet Flows (Issue #25)](docs/issue-25.md) - Playwright E2E journeys for receive, convert, off-ramp, savings, cards, and profile.
 - [Environment Setup & Stellar Network Configuration (Issue #28)](docs/issue-28.md) - Environment variables, testnet vs mainnet setup, and key security rules.
 - [Mock Centralization (Issue #14)](docs/issue-14.md) - Centralized fixtures/data service, API contracts, test strategy, and rollout notes.
 

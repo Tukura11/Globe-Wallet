@@ -47,7 +47,7 @@ jobs:
     needs: test
 
     steps:
-    - name: Send merge analytics (issue-23)
+    - name: Send merge analytics (issue-23, issue-28)
       run: |
         curl -X POST "${{ secrets.MERGE_ANALYTICS_URL }}" \
           -H "Content-Type: application/json" \
@@ -58,7 +58,7 @@ jobs:
             "commit": "${{ github.sha }}",
             "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'",
             "author": "${{ github.actor }}",
-            "issue": 23,
+            "issues": [23, 28],
             "status": "success",
             "coverage_verified": true
           }'
